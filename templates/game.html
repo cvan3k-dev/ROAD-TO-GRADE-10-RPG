@@ -15,8 +15,12 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 10px;
         }
         .header .brand { color: #f7d44a; font-size: 24px; font-weight: bold; }
+        .header .stats { display: flex; gap: 20px; flex-wrap: wrap; }
+        .header .stats span { color: #aaa; font-size: 14px; }
+        .header .stats span strong { color: white; }
         .header .nav a {
             color: #aaa;
             text-decoration: none;
@@ -95,12 +99,15 @@
 <body>
     <div class="header">
         <div class="brand">🎮 Road To Grade 10 RPG</div>
+        <div class="stats" id="headerStats">
+            <span>Level <strong id="userLevel">{{ user.level }}</strong></span>
+            <span>XP <strong id="userXp">{{ user.xp }}</strong></span>
+            <span>🪙 <strong id="userCoins">{{ user.coins }}</strong></span>
+        </div>
         <div class="nav">
             <a href="/home">🏠 Trang chủ</a>
             <a href="/profile">👤 Profile</a>
             <a href="/roadmap">🗺️ Roadmap</a>
-            <a href="/achievement">🏆 Thành tích</a>
-            <a href="/leaderboard">📊 Bảng xếp hạng</a>
             <a href="/logout">🚪 Thoát</a>
         </div>
     </div>
@@ -140,7 +147,6 @@
     <script>
         let answered = false;
         let levelId = {{ level.id }};
-        let questionData = {{ question | tojson }};
 
         async function attack(answer) {
             if (answered) return;
@@ -161,22 +167,26 @@
                 const data = await res.json();
                 
                 const resultArea = document.getElementById('resultArea');
-                const nextBtn = document.getElementById('nextBtn');
+                if (!resultArea) {
+                    console.error('resultArea not found');
+                    return;
+                }
                 
                 if (data.correct) {
                     buttons[answer].classList.add('correct');
                     resultArea.innerHTML = `<div class="result success">🎉 ${data.message}</div>`;
-                    // Cập nhật XP và Level trên UI
-                    document.querySelector('.stats').innerHTML = `
-                        <span>Level <strong>${data.level}</strong></span>
-                        <span>XP <strong>${data.xp}</strong></span>
-                    `;
+                    // Cập nhật thông tin trên header
+                    const levelEl = document.getElementById('userLevel');
+                    const xpEl = document.getElementById('userXp');
+                    if (levelEl) levelEl.textContent = data.level;
+                    if (xpEl) xpEl.textContent = data.xp;
                     // Hiện nút tiếp theo
-                    nextBtn.style.display = 'inline-block';
+                    const nextBtn = document.getElementById('nextBtn');
+                    if (nextBtn) nextBtn.style.display = 'inline-block';
                 } else {
                     buttons[answer].classList.add('wrong');
                     resultArea.innerHTML = `<div class="result fail">❌ ${data.message}</div>`;
-                    // Cho phép thử lại
+                    // Cho phép thử lại sau 2 giây
                     setTimeout(() => {
                         buttons.forEach(btn => {
                             btn.disabled = false;
@@ -187,7 +197,10 @@
                 }
             } catch (err) {
                 console.error(err);
-                resultArea.innerHTML = `<div class="result fail">❌ Lỗi kết nối server!</div>`;
+                const resultArea = document.getElementById('resultArea');
+                if (resultArea) {
+                    resultArea.innerHTML = `<div class="result fail">❌ Lỗi kết nối server!</div>`;
+                }
                 answered = false;
                 document.querySelectorAll('.opt-btn').forEach(btn => btn.disabled = false);
             }
