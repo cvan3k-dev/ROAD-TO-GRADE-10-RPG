@@ -351,6 +351,17 @@ def admin_logout():
     session.pop('admin_logged_in', None)
     return redirect(url_for('admin_login'))
 
+# ===== FILTER TÙY CHỈNH CHO JINJA2 =====
+@app.template_filter('fromjson')
+def fromjson_filter(value):
+    """Chuyển đổi chuỗi JSON thành đối tượng Python trong template"""
+    if value:
+        try:
+            return json.loads(value)
+        except:
+            return []
+    return []
+    
 # ============================================================
 # RUN
 # ============================================================
