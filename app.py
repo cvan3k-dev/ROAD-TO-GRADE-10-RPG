@@ -10,7 +10,6 @@ import random
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
-# Cấu hình database (SQLite)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'instance', 'road_to_grade10.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
@@ -32,15 +31,9 @@ class User(db.Model):
     coins = db.Column(db.Integer, default=0)
     streak = db.Column(db.Integer, default=0)
     rank = db.Column(db.String(50), default='Chiến binh')
-    is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
-    achievements = db.Column(db.Text, default='[]')  # Lưu JSON
-    # Thống kê học tập
-    total_lessons = db.Column(db.Integer, default=0)
-    total_correct = db.Column(db.Integer, default=0)
-    total_wrong = db.Column(db.Integer, default=0)
-    accuracy = db.Column(db.Float, default=0.0)
+    achievements = db.Column(db.Text, default='[]')
 
 class Achievement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -63,7 +56,6 @@ with app.app_context():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     db.create_all()
     
-    # Tạo admin nếu chưa có
     if not User.query.filter_by(username='admin').first():
         admin = User(
             username='admin',
@@ -71,18 +63,12 @@ with app.app_context():
             level=10,
             xp=5000,
             coins=1000,
-            rank='Huyền thoại',
-            is_admin=True,
-            total_lessons=50,
-            total_correct=45,
-            total_wrong=5,
-            accuracy=90.0
+            rank='Huyền thoại'
         )
         db.session.add(admin)
         db.session.commit()
         print("✅ Đã tạo admin: admin / admin123")
     
-    # Tạo thành tích mẫu
     if Achievement.query.count() == 0:
         achievements = [
             {'name': 'Người mới', 'description': 'Hoàn thành Level 1', 'icon': '🌱', 'condition': 'level >= 1'},
@@ -124,28 +110,24 @@ def calculate_rank(level):
 def check_achievements(user_id):
     user = User.query.get(user_id)
     if not user: return
-    
     current = json.loads(user.achievements) if user.achievements else []
-    all_achievements = Achievement.query.all()
-    
-    new_achievements = []
-    for ach in all_achievements:
+    all_ach = Achievement.query.all()
+    new_ach = []
+    for ach in all_ach:
         ach_id = f'ach_{ach.id}'
         if ach_id in current: continue
-        
         if ach.condition.startswith('level >= '):
-            req_level = int(ach.condition.split('>=')[1].strip())
-            if user.level >= req_level:
-                new_achievements.append(ach_id)
+            req = int(ach.condition.split('>=')[1].strip())
+            if user.level >= req:
+                new_ach.append(ach_id)
                 ua = UserAchievement(user_id=user.id, achievement_id=ach.id)
                 db.session.add(ua)
-    
-    if new_achievements:
-        user.achievements = json.dumps(list(set(current + new_achievements)))
+    if new_ach:
+        user.achievements = json.dumps(list(set(current + new_ach)))
         db.session.commit()
 
 # ============================================================
-# ROUTES (GIỮ NGUYÊN CODE CŨ)
+# ROUTES (GIỮ NGUYÊN TẤT CẢ CÁC ROUTE CŨ)
 # ============================================================
 
 @app.route('/')
@@ -159,11 +141,9 @@ def home():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     user = User.query.get(session['user_id'])
-    # Lấy top 5 leaderboard
-    leaderboard = User.query.order_by(User.xp.desc()).limit(5).all()
+    leaderboard = User.query.order_by(User.xp.desc()).limit(10).all()
     all_ach = Achievement.query.all()
-    unlocked = json.loads(user.achievements) if user.achievements else []
-    return render_template('index.html', user=user, leaderboard=leaderboard, all_ach=all_ach, unlocked=unlocked)
+    return render_template('index.html', user=user, leaderboard=leaderboard, all_ach=all_ach)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -174,11 +154,8 @@ def login():
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
             session['username'] = user.username
-            session['is_admin'] = user.is_admin
             user.last_login = datetime.utcnow()
             db.session.commit()
-            if user.is_admin:
-                return redirect(url_for('admin_dashboard'))
             return redirect(url_for('home'))
         return render_template('login.html', error='Sai tên đăng nhập hoặc mật khẩu!')
     return render_template('login.html')
@@ -189,12 +166,10 @@ def register():
         username = request.form.get('username')
         password = request.form.get('password')
         confirm = request.form.get('confirm_password')
-        
         if password != confirm:
             return render_template('register.html', error='Mật khẩu không khớp!')
         if User.query.filter_by(username=username).first():
             return render_template('register.html', error='Tên đăng nhập đã tồn tại!')
-        
         user = User(username=username, password=generate_password_hash(password))
         db.session.add(user)
         db.session.commit()
@@ -246,7 +221,6 @@ def game(level_id):
     level = next((l for l in levels if l['id'] == level_id), None)
     if not level:
         return "Level không tồn tại!", 404
-    
     questions = {
         1: {'question': 'Từ nào có nghĩa là "mèo"?', 'options': ['Dog', 'Cat', 'Bird', 'Fish'], 'answer': 1},
         2: {'question': 'Chia động từ: She ___ to school every day.', 'options': ['go', 'goes', 'going', 'went'], 'answer': 1},
@@ -259,23 +233,23 @@ def game(level_id):
         9: {'question': 'Từ nào là từ vựng về trường học?', 'options': ['Teacher', 'Forest', 'Mountain', 'Ocean'], 'answer': 0},
         10: {'question': 'Dịch: "Tôi sẽ vượt qua kỳ thi."', 'options': ['I will pass the exam.', 'I pass the exam.', 'I passed the exam.', 'I am passing the exam.'], 'answer': 0},
     }
-    
     q = questions.get(level_id, questions[1])
     return render_template('game.html', user=user, level=level, question=q)
+
+# ============================================================
+# API (THÊM HEAL VÀ DEFENSE)
+# ============================================================
 
 @app.route('/api/attack', methods=['POST'])
 def attack():
     if 'user_id' not in session:
         return jsonify({'error': 'Chưa đăng nhập!'}), 401
-    
     data = request.json
     level_id = data.get('level_id')
     answer = data.get('answer')
-    
     user = User.query.get(session['user_id'])
     if not user:
-        return jsonify({'error': 'Không tìm thấy user!'}), 404
-    
+        return jsonify({'error': 'User không tồn tại!'}), 404
     questions = {
         1: {'answer': 1},
         2: {'answer': 1},
@@ -288,18 +262,8 @@ def attack():
         9: {'answer': 0},
         10: {'answer': 0},
     }
-    
     correct = questions.get(level_id, {}).get('answer', 0)
     is_correct = (answer == correct)
-    
-    # Cập nhật thống kê
-    user.total_lessons += 1
-    if is_correct:
-        user.total_correct += 1
-    else:
-        user.total_wrong += 1
-    user.accuracy = round((user.total_correct / user.total_lessons) * 100, 1)
-    
     if is_correct:
         xp_gain = 50 + level_id * 10
         user.xp += xp_gain
@@ -315,122 +279,24 @@ def attack():
             'message': f'⚔️ Chính xác! +{xp_gain} XP, +10 Coin!',
             'xp': user.xp,
             'level': user.level,
-            'coins': user.coins,
-            'accuracy': user.accuracy
+            'coins': user.coins
         })
     else:
-        db.session.commit()
         return jsonify({
             'correct': False,
             'message': '❌ Sai rồi! Hãy thử lại!'
         })
 
-# ============================================================
-# ROUTES ADMIN (THÊM MỚI)
-# ============================================================
-
-@app.route('/admin')
-def admin_dashboard():
-    if 'user_id' not in session:
-        return redirect(url_for('admin_login'))
-    user = User.query.get(session['user_id'])
-    if not user.is_admin:
-        return "Bạn không có quyền truy cập!", 403
-    
-    # Thống kê tổng quan
-    total_users = User.query.count()
-    total_lessons = db.session.query(db.func.sum(User.total_lessons)).scalar() or 0
-    total_correct = db.session.query(db.func.sum(User.total_correct)).scalar() or 0
-    total_wrong = db.session.query(db.func.sum(User.total_wrong)).scalar() or 0
-    avg_accuracy = db.session.query(db.func.avg(User.accuracy)).scalar() or 0
-    
-    # Danh sách user
-    users = User.query.order_by(User.xp.desc()).all()
-    
-    return render_template('admin.html',
-        user=user,
-        total_users=total_users,
-        total_lessons=total_lessons,
-        total_correct=total_correct,
-        total_wrong=total_wrong,
-        avg_accuracy=round(avg_accuracy, 1),
-        users=users
-    )
-
-@app.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password) and user.is_admin:
-            session['user_id'] = user.id
-            session['username'] = user.username
-            session['is_admin'] = user.is_admin
-            return redirect(url_for('admin_dashboard'))
-        return render_template('admin_login.html', error='Sai tên đăng nhập hoặc mật khẩu!')
-    return render_template('admin_login.html')
-
-@app.route('/api/admin/users')
-def admin_users():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-    user = User.query.get(session['user_id'])
-    if not user.is_admin:
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    users = User.query.all()
-    return jsonify([{
-        'id': u.id,
-        'username': u.username,
-        'level': u.level,
-        'xp': u.xp,
-        'coins': u.coins,
-        'rank': u.rank,
-        'total_lessons': u.total_lessons,
-        'total_correct': u.total_correct,
-        'total_wrong': u.total_wrong,
-        'accuracy': u.accuracy,
-        'created_at': u.created_at.strftime('%d/%m/%Y')
-    } for u in users])
-
-@app.route('/api/admin/stats')
-def admin_stats():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-    user = User.query.get(session['user_id'])
-    if not user.is_admin:
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    total_users = User.query.count()
-    total_lessons = db.session.query(db.func.sum(User.total_lessons)).scalar() or 0
-    total_correct = db.session.query(db.func.sum(User.total_correct)).scalar() or 0
-    avg_accuracy = db.session.query(db.func.avg(User.accuracy)).scalar() or 0
-    
-    return jsonify({
-        'total_users': total_users,
-        'total_lessons': total_lessons,
-        'total_correct': total_correct,
-        'avg_accuracy': round(avg_accuracy, 1)
-    })
-
-# ===== API HỒI PHỤC (HEAL) =====
+# ===== API HỒI PHỤC =====
 @app.route('/api/heal', methods=['POST'])
 def heal():
     if 'user_id' not in session:
         return jsonify({'error': 'Chưa đăng nhập!'}), 401
-    
     user = User.query.get(session['user_id'])
     if not user:
         return jsonify({'error': 'User không tồn tại!'}), 404
-    
-    # Tiêu tốn 20 MP, hồi 30 HP
-    # Giả định MP là 50, HP là 100
-    # Lưu ý: Bạn nên lưu HP/MP vào database nếu muốn lâu dài
-    # Vì đây là demo, tôi sẽ giả lập trên frontend và trả về kết quả
-    
-    # Ở đây tôi chỉ trả về thông báo thành công
-    # Frontend sẽ tự cập nhật HP/MP
+    # Giả lập HP/MP trên frontend, backend chỉ trả về thông báo
+    # Để đơn giản, chúng ta không lưu HP/MP vào DB
     return jsonify({
         'success': True,
         'message': '💚 Hồi phục thành công! +30 HP, -20 MP',
@@ -438,24 +304,100 @@ def heal():
         'mp_cost': 20
     })
 
-# ===== API KHIÊN BẢO VỆ (DEFENSE) =====
+# ===== API KHIÊN BẢO VỆ =====
 @app.route('/api/defense', methods=['POST'])
 def defense():
     if 'user_id' not in session:
         return jsonify({'error': 'Chưa đăng nhập!'}), 401
-    
     user = User.query.get(session['user_id'])
     if not user:
         return jsonify({'error': 'User không tồn tại!'}), 404
-    
-    # Tiêu tốn 10 MP, giảm sát thương boss (giảm boss HP ít hơn)
     return jsonify({
         'success': True,
         'message': '🛡️ Khiên bảo vệ kích hoạt! Boss bị giảm ít sát thương hơn.',
         'mp_cost': 10,
-        'boss_damage_reduce': 15  # Boss chỉ mất 15 HP thay vì 25
+        'boss_damage_reduce': 15
     })
-    
+
+@app.route('/api/user')
+def get_user():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    user = User.query.get(session['user_id'])
+    return jsonify({
+        'username': user.username,
+        'level': user.level,
+        'xp': user.xp,
+        'coins': user.coins,
+        'streak': user.streak,
+        'rank': user.rank
+    })
+
+@app.route('/api/leaderboard')
+def api_leaderboard():
+    users = User.query.order_by(User.xp.desc()).limit(20).all()
+    return jsonify([{
+        'username': u.username,
+        'level': u.level,
+        'xp': u.xp
+    } for u in users])
+
+# ============================================================
+# ADMIN (XEM TIẾN ĐỘ HỌC TẬP)
+# ============================================================
+
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "admin123"
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin_dashboard'))
+        return render_template('admin_login.html', error='Sai tên đăng nhập hoặc mật khẩu!')
+    return render_template('admin_login.html')
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    users = User.query.all()
+    level_counts = {}
+    for i in range(1, 11):
+        level_counts[i] = User.query.filter_by(level=i).count()
+    total_users = len(users)
+    total_xp = sum(u.xp for u in users)
+    avg_level = round(sum(u.level for u in users) / total_users, 1) if total_users > 0 else 0
+    return render_template('admin_dashboard.html',
+        users=users,
+        total_users=total_users,
+        total_xp=total_xp,
+        avg_level=avg_level,
+        level_counts=level_counts
+    )
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('admin_login'))
+
+@app.route('/api/admin/users')
+def api_admin_users():
+    if not session.get('admin_logged_in'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    users = User.query.all()
+    return jsonify([{
+        'username': u.username,
+        'level': u.level,
+        'xp': u.xp,
+        'coins': u.coins,
+        'rank': u.rank,
+        'created_at': u.created_at.strftime('%d/%m/%Y')
+    } for u in users])
+
 # ============================================================
 # RUN
 # ============================================================
