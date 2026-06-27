@@ -136,15 +136,18 @@ def index():
         return redirect(url_for('home'))
     return redirect(url_for('login'))
 
-@app.route('/home')
+@@app.route('/home')
 def home():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     user = User.query.get(session['user_id'])
     leaderboard = User.query.order_by(User.xp.desc()).limit(10).all()
     all_ach = Achievement.query.all()
-    return render_template('index.html', user=user, leaderboard=leaderboard, all_ach=all_ach)
-
+    # Lấy level mặc định (ví dụ level 1)
+    levels = get_levels()
+    level = levels[0] if levels else {'boss': 'Goblin', 'name': 'Forest of Vocabulary'}
+    return render_template('index.html', user=user, leaderboard=leaderboard, all_ach=all_ach, level=level)
+    
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
