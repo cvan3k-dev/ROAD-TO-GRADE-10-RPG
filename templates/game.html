@@ -5,12 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ Pháp Sư Chiến Đấu - Road To Grade 10 RPG</title>
     <style>
-        /* ===== RESET & FONT ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #0b0b1a;
@@ -18,8 +13,6 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-
-        /* ===== PARTICLE BACKGROUND ===== */
         #particles-canvas {
             position: fixed;
             top: 0;
@@ -29,8 +22,6 @@
             z-index: 0;
             pointer-events: none;
         }
-
-        /* ===== HEADER ===== */
         .header {
             position: relative;
             z-index: 1;
@@ -51,9 +42,7 @@
             font-weight: bold;
             text-shadow: 0 0 20px rgba(123, 63, 224, 0.5);
         }
-        .header .brand i {
-            margin-right: 10px;
-        }
+        .header .brand i { margin-right: 10px; }
         .header .stats {
             display: flex;
             gap: 25px;
@@ -69,13 +58,8 @@
             border-radius: 20px;
             border: 1px solid rgba(123, 63, 224, 0.3);
         }
-        .header .stats .stat-item i {
-            color: #b388ff;
-        }
-        .header .stats .stat-item strong {
-            color: #fff;
-            font-weight: 700;
-        }
+        .header .stats .stat-item i { color: #b388ff; }
+        .header .stats .stat-item strong { color: #fff; }
         .header .nav a {
             color: #aaa;
             text-decoration: none;
@@ -83,12 +67,7 @@
             transition: color 0.3s;
             font-size: 14px;
         }
-        .header .nav a:hover {
-            color: #b388ff;
-            text-shadow: 0 0 15px rgba(123, 63, 224, 0.6);
-        }
-
-        /* ===== MAIN ===== */
+        .header .nav a:hover { color: #b388ff; text-shadow: 0 0 15px rgba(123, 63, 224, 0.6); }
         .main {
             position: relative;
             z-index: 1;
@@ -96,8 +75,6 @@
             max-width: 1000px;
             margin: 0 auto;
         }
-
-        /* ===== BATTLE ARENA ===== */
         .arena {
             background: rgba(20, 15, 40, 0.75);
             backdrop-filter: blur(8px);
@@ -123,8 +100,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* ===== BOSS AREA ===== */
         .boss-area {
             text-align: center;
             padding: 20px 0 30px;
@@ -140,18 +115,8 @@
             0%, 100% { transform: translateY(0px) scale(1); }
             50% { transform: translateY(-15px) scale(1.05); }
         }
-        .boss-name {
-            font-size: 28px;
-            color: #f7d44a;
-            margin: 10px 0 5px;
-            text-shadow: 0 0 30px rgba(247, 212, 74, 0.3);
-        }
-        .boss-level {
-            color: #888;
-            font-size: 14px;
-            letter-spacing: 2px;
-        }
-        /* Boss HP */
+        .boss-name { font-size: 28px; color: #f7d44a; margin: 10px 0 5px; text-shadow: 0 0 30px rgba(247, 212, 74, 0.3); }
+        .boss-level { color: #888; font-size: 14px; letter-spacing: 2px; }
         .boss-hp-container {
             max-width: 400px;
             margin: 15px auto;
@@ -180,8 +145,6 @@
             color: white;
             text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
-
-        /* ===== PLAYER AREA ===== */
         .player-area {
             display: flex;
             align-items: center;
@@ -194,24 +157,13 @@
             flex-wrap: wrap;
             justify-content: center;
         }
-        .player-avatar {
-            font-size: 70px;
-            animation: floatPlayer 4s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(123, 63, 224, 0.4));
-        }
+        .player-avatar { font-size: 70px; animation: floatPlayer 4s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(123, 63, 224, 0.4)); }
         @keyframes floatPlayer {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
-        .player-info {
-            flex: 1;
-            min-width: 150px;
-        }
-        .player-info .name {
-            font-size: 20px;
-            font-weight: bold;
-            color: #b388ff;
-        }
+        .player-info { flex: 1; min-width: 150px; }
+        .player-info .name { font-size: 20px; font-weight: bold; color: #b388ff; }
         .player-info .stats-mini {
             display: flex;
             gap: 20px;
@@ -219,11 +171,7 @@
             font-size: 14px;
             color: #aaa;
         }
-        .player-info .stats-mini i {
-            color: #b388ff;
-            margin-right: 4px;
-        }
-        /* Player HP/MP bar */
+        .player-info .stats-mini i { color: #b388ff; margin-right: 4px; }
         .bar-container {
             margin: 6px 0;
             background: rgba(0, 0, 0, 0.4);
@@ -231,11 +179,7 @@
             padding: 3px;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .bar-container .bar {
-            height: 10px;
-            border-radius: 6px;
-            transition: width 0.3s ease;
-        }
+        .bar-container .bar { height: 10px; border-radius: 6px; transition: width 0.3s ease; }
         .bar-hp { background: linear-gradient(90deg, #27ae60, #2ecc71); }
         .bar-mp { background: linear-gradient(90deg, #2980b9, #3498db); }
         .bar-label {
@@ -245,8 +189,6 @@
             justify-content: space-between;
             margin-top: 2px;
         }
-
-        /* ===== QUESTION ===== */
         .question-box {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 16px;
@@ -255,14 +197,7 @@
             border-left: 4px solid #b388ff;
             text-align: center;
         }
-        .question-text {
-            font-size: 22px;
-            font-weight: 600;
-            color: #f0e6ff;
-            line-height: 1.6;
-        }
-
-        /* ===== SKILL BUTTONS ===== */
+        .question-text { font-size: 22px; font-weight: 600; color: #f0e6ff; line-height: 1.6; }
         .skills-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -295,64 +230,33 @@
             opacity: 0;
             transition: opacity 0.4s;
         }
-        .skill-btn:hover:not(:disabled)::before {
-            opacity: 1;
-        }
+        .skill-btn:hover:not(:disabled)::before { opacity: 1; }
         .skill-btn:hover:not(:disabled) {
             border-color: #b388ff;
             transform: translateY(-3px);
             box-shadow: 0 8px 30px rgba(123, 63, 224, 0.3);
         }
-        .skill-btn:active:not(:disabled) {
-            transform: scale(0.97);
-        }
-        .skill-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            filter: grayscale(0.6);
-        }
-        .skill-btn .icon {
-            font-size: 32px;
-            display: block;
-            margin-bottom: 6px;
-        }
-        .skill-btn .label {
-            font-weight: 600;
-            font-size: 13px;
-        }
-        .skill-btn .desc {
-            font-size: 11px;
-            color: #888;
-            margin-top: 4px;
-        }
-        /* Skill types */
-        .skill-btn.attack {
-            border-color: #e74c3c;
-        }
+        .skill-btn:active:not(:disabled) { transform: scale(0.97); }
+        .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.6); }
+        .skill-btn .icon { font-size: 32px; display: block; margin-bottom: 6px; }
+        .skill-btn .label { font-weight: 600; font-size: 13px; }
+        .skill-btn .desc { font-size: 11px; color: #888; margin-top: 4px; }
+        .skill-btn.attack { border-color: #e74c3c; }
         .skill-btn.attack:hover:not(:disabled) {
             border-color: #ff6b6b;
             box-shadow: 0 0 30px rgba(231, 76, 60, 0.3);
         }
-        .skill-btn.heal {
-            border-color: #27ae60;
-        }
+        .skill-btn.heal { border-color: #27ae60; }
         .skill-btn.heal:hover:not(:disabled) {
             border-color: #2ecc71;
             box-shadow: 0 0 30px rgba(39, 174, 96, 0.3);
         }
-        .skill-btn.defense {
-            border-color: #3498db;
-        }
+        .skill-btn.defense { border-color: #3498db; }
         .skill-btn.defense:hover:not(:disabled) {
             border-color: #5dade2;
             box-shadow: 0 0 30px rgba(52, 152, 219, 0.3);
         }
-
-        /* ===== RESULT AREA ===== */
-        #resultArea {
-            margin-top: 20px;
-            min-height: 60px;
-        }
+        #resultArea { margin-top: 20px; min-height: 60px; }
         .result-box {
             padding: 18px 25px;
             border-radius: 16px;
@@ -383,8 +287,6 @@
             0% { transform: scale(0.8); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
-
-        /* ===== ACTION BUTTONS ===== */
         .action-bar {
             display: flex;
             justify-content: center;
@@ -422,8 +324,6 @@
             border-color: #f7d44a;
             box-shadow: 0 0 30px rgba(247, 212, 74, 0.2);
         }
-
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: stretch; text-align: center; }
             .header .stats { justify-content: center; }
@@ -437,8 +337,6 @@
             .boss-icon { font-size: 70px; }
             .player-avatar { font-size: 50px; }
         }
-
-        /* ===== UTILITY ===== */
         .hidden { display: none !important; }
         .mt-10 { margin-top: 10px; }
         .text-center { text-align: center; }
@@ -446,10 +344,8 @@
 </head>
 <body>
 
-    <!-- ===== PARTICLE BACKGROUND ===== -->
     <canvas id="particles-canvas"></canvas>
 
-    <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="brand">
             <i class="fas fa-hat-wizard"></i> Pháp Sư Học Đường
@@ -468,11 +364,9 @@
         </div>
     </header>
 
-    <!-- ===== MAIN ===== -->
     <main class="main">
         <div class="arena">
 
-            <!-- BOSS -->
             <div class="boss-area">
                 <div class="boss-icon">👹</div>
                 <div class="boss-name">⚔️ {{ level.boss }}</div>
@@ -482,7 +376,6 @@
                 </div>
             </div>
 
-            <!-- PLAYER -->
             <div class="player-area">
                 <div class="player-avatar">🧙</div>
                 <div class="player-info">
@@ -500,14 +393,11 @@
                 </div>
             </div>
 
-            <!-- QUESTION -->
             <div class="question-box">
                 <div class="question-text" id="questionText">{{ question.question }}</div>
             </div>
 
-            <!-- SKILLS -->
             <div class="skills-container" id="skillsContainer">
-                <!-- 4 skill tấn công -->
                 {% for opt in question.options %}
                     <button class="skill-btn attack" data-answer="{{ loop.index0 }}" onclick="attack({{ loop.index0 }}, this)">
                         <span class="icon">⚡</span>
@@ -515,13 +405,11 @@
                         <span class="desc">Phép tấn công</span>
                     </button>
                 {% endfor %}
-                <!-- Skill hồi phục -->
                 <button class="skill-btn heal" onclick="useHeal(this)">
                     <span class="icon">💚</span>
                     <span class="label">Hồi phục</span>
                     <span class="desc">HP +30 (MP -20)</span>
                 </button>
-                <!-- Skill khiên bảo vệ -->
                 <button class="skill-btn defense" onclick="useDefense(this)">
                     <span class="icon">🛡️</span>
                     <span class="label">Khiên bảo vệ</span>
@@ -529,10 +417,8 @@
                 </button>
             </div>
 
-            <!-- RESULT -->
             <div id="resultArea"></div>
 
-            <!-- ACTION BAR -->
             <div class="action-bar">
                 <a href="/roadmap" class="btn"><i class="fas fa-map"></i> Roadmap</a>
                 <a href="/home" class="btn"><i class="fas fa-home"></i> Trang chủ</a>
@@ -550,12 +436,9 @@
         </div>
     </main>
 
-    <!-- ===== SCRIPTS ===== -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
-        // ============================================================
-        // 1. PARTICLE BACKGROUND
-        // ============================================================
+        // ===== PARTICLE BACKGROUND =====
         (function() {
             const canvas = document.getElementById('particles-canvas');
             const ctx = canvas.getContext('2d');
@@ -571,9 +454,7 @@
             resize();
 
             class Particle {
-                constructor() {
-                    this.reset();
-                }
+                constructor() { this.reset(); }
                 reset() {
                     this.x = Math.random() * w;
                     this.y = Math.random() * h;
@@ -599,51 +480,37 @@
                     ctx.shadowBlur = 0;
                 }
             }
-
-            for (let i = 0; i < count; i++) {
-                particles.push(new Particle());
-            }
+            for (let i = 0; i < count; i++) particles.push(new Particle());
 
             function animate() {
                 ctx.clearRect(0, 0, w, h);
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
+                particles.forEach(p => { p.update(); p.draw(); });
                 requestAnimationFrame(animate);
             }
             animate();
         })();
 
-        // ============================================================
-        // 2. GAME STATE
-        // ============================================================
+        // ===== GAME STATE =====
         let answered = false;
         let levelId = {{ level.id }};
         let bossHp = 100;
         let playerHp = 100;
         let playerMp = 50;
 
-        // Cập nhật thanh máu ban đầu
         document.getElementById('bossHpBar').style.width = '100%';
         document.getElementById('playerHpBar').style.width = '100%';
         document.getElementById('playerMpBar').style.width = '50%';
 
-        // ============================================================
-        // 3. HÀM TẤN CÔNG
-        // ============================================================
+        // ===== ATTACK =====
         async function attack(answer, btn) {
             if (answered) return;
             answered = true;
-
             const allBtns = document.querySelectorAll('.skill-btn:not([disabled])');
             allBtns.forEach(b => b.disabled = true);
-
             if (btn) {
                 btn.style.transform = 'scale(0.9)';
                 setTimeout(() => btn.style.transform = '', 200);
             }
-
             const arena = document.querySelector('.arena');
             arena.style.transition = 'box-shadow 0.1s';
             arena.style.boxShadow = '0 0 80px rgba(123, 63, 224, 0.6)';
@@ -653,21 +520,14 @@
                 const res = await fetch('/api/attack', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        level_id: levelId,
-                        answer: answer
-                    })
+                    body: JSON.stringify({ level_id: levelId, answer: answer })
                 });
                 const data = await res.json();
-
                 const resultArea = document.getElementById('resultArea');
                 if (!resultArea) return;
 
-                // Boss mất HP
                 bossHp = Math.max(0, bossHp - 25);
                 document.getElementById('bossHpBar').style.width = bossHp + '%';
-
-                // Player mất MP
                 playerMp = Math.max(0, playerMp - 5);
                 document.getElementById('playerMpBar').style.width = (playerMp / 50 * 100) + '%';
                 document.getElementById('playerMp').textContent = playerMp;
@@ -679,10 +539,8 @@
                     document.getElementById('userXp').textContent = data.xp;
                     const nextBtn = document.getElementById('nextBtn');
                     if (nextBtn) nextBtn.style.display = 'inline-flex';
-
                     bossHp = Math.max(0, bossHp - 10);
                     document.getElementById('bossHpBar').style.width = bossHp + '%';
-
                     if (bossHp <= 0) {
                         resultArea.innerHTML += `<div class="result-box success" style="margin-top:15px;">🏆 BOSS ĐÃ BỊ ĐÁNH BẠI! Bạn đã hoàn thành level!</div>`;
                         document.getElementById('nextBtn').style.display = 'inline-flex';
@@ -698,17 +556,13 @@
             } catch (err) {
                 console.error(err);
                 const resultArea = document.getElementById('resultArea');
-                if (resultArea) {
-                    resultArea.innerHTML = `<div class="result-box fail">❌ Lỗi kết nối server!</div>`;
-                }
+                if (resultArea) resultArea.innerHTML = `<div class="result-box fail">❌ Lỗi kết nối server!</div>`;
                 answered = false;
                 document.querySelectorAll('.skill-btn:not([disabled])').forEach(b => b.disabled = false);
             }
         }
 
-        // ============================================================
-        // 4. HÀM HỒI PHỤC
-        // ============================================================
+        // ===== HEAL =====
         async function useHeal(btn) {
             if (answered) return;
             if (playerMp < 20) {
@@ -744,9 +598,7 @@
             }, 1500);
         }
 
-        // ============================================================
-        // 5. HÀM KHIÊN BẢO VỆ
-        // ============================================================
+        // ===== DEFENSE =====
         async function useDefense(btn) {
             if (answered) return;
             if (playerMp < 10) {
@@ -785,17 +637,10 @@
             }, 1500);
         }
 
-        // ============================================================
-        // 6. HÀM PHỤ TRỢ
-        // ============================================================
         function showResult(msg, type = 'info') {
             const resultArea = document.getElementById('resultArea');
             if (!resultArea) return;
-            const classes = {
-                success: 'result-box success',
-                fail: 'result-box fail',
-                info: 'result-box info'
-            };
+            const classes = { success: 'result-box success', fail: 'result-box fail', info: 'result-box info' };
             resultArea.innerHTML = `<div class="${classes[type] || classes.info}">${msg}</div>`;
         }
 
@@ -875,7 +720,7 @@
         `;
         document.head.appendChild(styleSheet);
 
-        // Gán nhãn skill tấn công
+        // Gán nhãn cho skill attack
         document.querySelectorAll('.skill-btn.attack').forEach((btn, idx) => {
             const labels = ['Phép Lửa', 'Tia Sét', 'Băng Giá', 'Bóng Tối'];
             const icons = ['🔥', '⚡', '❄️', '🌑'];
