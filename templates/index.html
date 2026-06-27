@@ -8,6 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f1a; color: #e0e0e0; min-height: 100vh; }
         
+        /* Header */
         .header {
             background: #1a1a2e;
             border-bottom: 4px solid #4a6fa5;
@@ -30,8 +31,8 @@
         }
         .header .nav a:hover { color: #f7d44a; }
         
+        /* Main */
         .main { padding: 30px; max-width: 1200px; margin: 0 auto; }
-        
         .pixel-border {
             border: 4px solid #4a6fa5;
             padding: 20px;
@@ -39,10 +40,10 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
-        
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         
+        /* Level items */
         .level-item {
             border: 2px solid #2a3f5a;
             padding: 15px;
@@ -56,21 +57,27 @@
         .level-item.locked { opacity: 0.5; cursor: not-allowed; }
         .level-item .icon { font-size: 40px; }
         .level-item .name { font-size: 12px; margin-top: 5px; }
+        .level-item .boss { font-size: 10px; color: #888; }
         
+        /* Buttons */
         .btn {
             background: #4a6fa5;
             color: white;
             border: 3px solid #2a3f5a;
-            padding: 10px 20px;
+            padding: 10px 25px;
             cursor: pointer;
             transition: all 0.1s;
             font-weight: bold;
             text-decoration: none;
             display: inline-block;
+            border-radius: 6px;
+            font-size: 14px;
         }
         .btn:hover { transform: translate(2px, 2px); }
         .btn-gold { background: #f7d44a; color: #1a1a2e; border-color: #b8960a; }
+        .btn-danger { background: #e74c3c; border-color: #a93226; }
         
+        /* Achievement */
         .achievement-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -81,46 +88,16 @@
             padding: 10px;
             border: 2px solid #2a3f5a;
             border-radius: 8px;
+            background: #0f0f1a;
         }
         .ach-item.unlocked { border-color: #f7d44a; background: #1a1a2e; }
-        .ach-item.locked { opacity: 0.3; }
+        .ach-item.locked { opacity: 0.3; filter: grayscale(1); }
         .ach-item .icon { font-size: 30px; }
         .ach-item .name { font-size: 10px; }
         
-        .xp-bar {
-            background: #2a2a3a;
-            height: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 5px 0;
-        }
-        .xp-bar-fill {
-            background: linear-gradient(90deg, #f7d44a, #f39c12);
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.3s;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-        th {
-            text-align: left;
-            padding: 8px 10px;
-            border-bottom: 2px solid #4a6fa5;
-            color: #f7d44a;
-        }
-        td {
-            padding: 8px 10px;
-            border-bottom: 1px solid #2a3f5a;
-        }
-        
         @media (max-width: 768px) {
             .grid-2, .grid-3 { grid-template-columns: 1fr; }
-            .header { flex-direction: column; text-align: center; }
-            .header .stats { justify-content: center; }
+            .header { flex-direction: column; gap: 10px; text-align: center; }
         }
     </style>
 </head>
@@ -146,30 +123,38 @@
     <div class="main">
         <h1 style="color: #f7d44a; text-align: center; margin-bottom: 20px;">⚔️ Chào mừng, {{ user.username }}!</h1>
         
-        <!-- XP Bar -->
+        <!-- Nút bắt đầu game nổi bật -->
+        <div style="text-align: center; margin-bottom: 25px;">
+            <a href="/game/1" class="btn btn-gold" style="font-size: 20px; padding: 15px 40px;">
+                ⚔️ VÀO GAME (Level 1)
+            </a>
+            <p style="color: #888; margin-top: 8px; font-size: 14px;">Bắt đầu hành trình chinh phục 10 cấp độ!</p>
+        </div>
+        
+        <!-- Thông tin nhanh -->
         <div class="pixel-border">
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-                <span>Level {{ user.level }}</span>
-                <span>XP: {{ user.xp }} / {{ user.level * 200 }}</span>
-            </div>
-            <div class="xp-bar">
-                <div class="xp-bar-fill" style="width: {{ (user.xp / (user.level * 200)) * 100 if user.level * 200 > 0 else 0 }}%;"></div>
+            <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                <div><span style="color: #888;">Level:</span> <strong style="color: #f7d44a;">{{ user.level }}</strong></div>
+                <div><span style="color: #888;">XP:</span> <strong>{{ user.xp }}</strong> / {{ user.level * 200 }}</div>
+                <div style="flex:1;">
+                    <div style="background: #2a2a3a; height: 8px; width: 100%; border-radius: 4px; margin-top: 8px;">
+                        <div style="background: #f7d44a; height: 8px; width: {{ (user.xp / (user.level * 200)) * 100 if user.level * 200 > 0 else 0 }}%; border-radius: 4px;"></div>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <!-- Roadmap + Leaderboard -->
+        <!-- Roadmap và Bảng xếp hạng -->
         <div class="grid-2">
             <div class="pixel-border">
                 <h3 style="color: #f7d44a;">🗺️ Roadmap</h3>
                 <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px;">
                     {% for i in range(1, 11) %}
-                        <div class="level-item {% if i <= user.level %}unlocked{% else %}locked{% endif %}" onclick="location.href='/game/{{ i }}'">
+                        <a href="/game/{{ i }}" class="level-item {% if i <= user.level %}unlocked{% else %}locked{% endif %}" style="text-decoration: none; color: inherit;">
                             <div class="icon">{% if i <= 3 %}🌲{% elif i <= 6 %}🏰{% else %}🏯{% endif %}</div>
                             <div class="name">Level {{ i }}</div>
-                            <div class="boss" style="font-size:10px;color:#888;">
-                                {% if i <= user.level %}✅ Mở khóa{% else %}🔒 Khóa{% endif %}
-                            </div>
-                        </div>
+                            <div class="boss">{% if i <= user.level %}✅ Mở khóa{% else %}🔒 Khóa{% endif %}</div>
+                        </a>
                     {% endfor %}
                 </div>
             </div>
@@ -177,10 +162,12 @@
             <div class="pixel-border">
                 <h3 style="color: #f7d44a;">📊 Bảng xếp hạng</h3>
                 <div style="margin-top: 15px; max-height: 300px; overflow-y: auto;">
-                    <table>
-                        <tr><th>#</th><th>Tên</th><th>Level</th><th>XP</th></tr>
+                    <table style="width:100%; border-collapse: collapse; font-size: 14px;">
+                        <tr style="border-bottom: 1px solid #2a3f5a;">
+                            <th>#</th><th>Tên</th><th>Level</th><th>XP</th>
+                        </tr>
                         {% for u in leaderboard %}
-                            <tr>
+                            <tr style="border-bottom: 1px solid #1a1a2e;">
                                 <td>{{ loop.index }}</td>
                                 <td>{{ u.username }}</td>
                                 <td>{{ u.level }}</td>
@@ -194,7 +181,7 @@
         
         <!-- Thành tích -->
         <div class="pixel-border">
-            <h3 style="color: #f7d44a;">🏆 Thành tích</h3>
+            <h3 style="color: #f7d44a;">🏆 Thành tích gần đây</h3>
             <div class="achievement-grid" style="margin-top: 15px;">
                 {% set unlocked = user.achievements | default('[]') | fromjson %}
                 {% for ach in all_ach %}
@@ -204,12 +191,6 @@
                     </div>
                 {% endfor %}
             </div>
-        </div>
-        
-        <!-- Action -->
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
-            <a href="/roadmap" class="btn">🗺️ Xem Roadmap</a>
-            <a href="/game/{{ user.level }}" class="btn btn-gold">⚔️ Chiến đấu</a>
         </div>
     </div>
 </body>
