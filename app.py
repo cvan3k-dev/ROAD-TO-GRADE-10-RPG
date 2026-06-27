@@ -414,6 +414,48 @@ def admin_stats():
         'avg_accuracy': round(avg_accuracy, 1)
     })
 
+# ===== API HỒI PHỤC (HEAL) =====
+@app.route('/api/heal', methods=['POST'])
+def heal():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Chưa đăng nhập!'}), 401
+    
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User không tồn tại!'}), 404
+    
+    # Tiêu tốn 20 MP, hồi 30 HP
+    # Giả định MP là 50, HP là 100
+    # Lưu ý: Bạn nên lưu HP/MP vào database nếu muốn lâu dài
+    # Vì đây là demo, tôi sẽ giả lập trên frontend và trả về kết quả
+    
+    # Ở đây tôi chỉ trả về thông báo thành công
+    # Frontend sẽ tự cập nhật HP/MP
+    return jsonify({
+        'success': True,
+        'message': '💚 Hồi phục thành công! +30 HP, -20 MP',
+        'heal': 30,
+        'mp_cost': 20
+    })
+
+# ===== API KHIÊN BẢO VỆ (DEFENSE) =====
+@app.route('/api/defense', methods=['POST'])
+def defense():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Chưa đăng nhập!'}), 401
+    
+    user = User.query.get(session['user_id'])
+    if not user:
+        return jsonify({'error': 'User không tồn tại!'}), 404
+    
+    # Tiêu tốn 10 MP, giảm sát thương boss (giảm boss HP ít hơn)
+    return jsonify({
+        'success': True,
+        'message': '🛡️ Khiên bảo vệ kích hoạt! Boss bị giảm ít sát thương hơn.',
+        'mp_cost': 10,
+        'boss_damage_reduce': 15  # Boss chỉ mất 15 HP thay vì 25
+    })
+    
 # ============================================================
 # RUN
 # ============================================================
