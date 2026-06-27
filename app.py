@@ -10,7 +10,6 @@ import random
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
-# Cấu hình database
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'instance', 'road_to_grade10.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
@@ -222,7 +221,6 @@ def game(level_id):
     level = next((l for l in levels if l['id'] == level_id), None)
     if not level:
         return "Level không tồn tại!", 404
-    
     questions = {
         1: {'question': 'Từ nào có nghĩa là "mèo"?', 'options': ['Dog', 'Cat', 'Bird', 'Fish'], 'answer': 1},
         2: {'question': 'Chia động từ: She ___ to school every day.', 'options': ['go', 'goes', 'going', 'went'], 'answer': 1},
@@ -235,36 +233,26 @@ def game(level_id):
         9: {'question': 'Từ nào là từ vựng về trường học?', 'options': ['Teacher', 'Forest', 'Mountain', 'Ocean'], 'answer': 0},
         10: {'question': 'Dịch: "Tôi sẽ vượt qua kỳ thi."', 'options': ['I will pass the exam.', 'I pass the exam.', 'I passed the exam.', 'I am passing the exam.'], 'answer': 0},
     }
-    
     q = questions.get(level_id, questions[1])
     return render_template('game.html', user=user, level=level, question=q)
-
-# ============================================================
-# API
-# ============================================================
 
 @app.route('/api/attack', methods=['POST'])
 def attack():
     if 'user_id' not in session:
         return jsonify({'error': 'Chưa đăng nhập!'}), 401
-    
     data = request.json
     level_id = data.get('level_id')
     answer = data.get('answer')
-    
     user = User.query.get(session['user_id'])
     if not user:
         return jsonify({'error': 'Không tìm thấy user!'}), 404
-    
     questions = {
-        1: {'answer': 1}, 2: {'answer': 1}, 3: {'answer': 1},
-        4: {'answer': 0}, 5: {'answer': 0}, 6: {'answer': 0},
-        7: {'answer': 0}, 8: {'answer': 0}, 9: {'answer': 0}, 10: {'answer': 0}
+        1: {'answer': 1}, 2: {'answer': 1}, 3: {'answer': 1}, 4: {'answer': 0},
+        5: {'answer': 0}, 6: {'answer': 0}, 7: {'answer': 0}, 8: {'answer': 0},
+        9: {'answer': 0}, 10: {'answer': 0},
     }
-    
     correct = questions.get(level_id, {}).get('answer', 0)
     is_correct = (answer == correct)
-    
     if is_correct:
         xp_gain = 50 + level_id * 10
         user.xp += xp_gain
@@ -288,6 +276,7 @@ def attack():
             'message': '❌ Sai rồi! Hãy thử lại!'
         })
 
+# ===== API HỒI PHỤC =====
 @app.route('/api/heal', methods=['POST'])
 def heal():
     try:
@@ -305,6 +294,7 @@ def heal():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ===== API KHIÊN BẢO VỆ =====
 @app.route('/api/defense', methods=['POST'])
 def defense():
     try:
@@ -321,29 +311,6 @@ def defense():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-@app.route('/api/user')
-def get_user():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-    user = User.query.get(session['user_id'])
-    return jsonify({
-        'username': user.username,
-        'level': user.level,
-        'xp': user.xp,
-        'coins': user.coins,
-        'streak': user.streak,
-        'rank': user.rank
-    })
-
-@app.route('/api/leaderboard')
-def api_leaderboard():
-    users = User.query.order_by(User.xp.desc()).limit(20).all()
-    return jsonify([{
-        'username': u.username,
-        'level': u.level,
-        'xp': u.xp
-    } for u in users])
 
 # ============================================================
 # ADMIN
@@ -375,11 +342,8 @@ def admin_dashboard():
     total_xp = sum(u.xp for u in users)
     avg_level = round(sum(u.level for u in users) / total_users, 1) if total_users > 0 else 0
     return render_template('admin_dashboard.html', 
-        users=users, 
-        total_users=total_users,
-        total_xp=total_xp,
-        avg_level=avg_level,
-        level_counts=level_counts
+        users=users, total_users=total_users, total_xp=total_xp,
+        avg_level=avg_level, level_counts=level_counts
     )
 
 @app.route('/admin/logout')
